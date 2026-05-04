@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Quest — Recykal Tech Day</title>
+  <script>
+    window.FIREBASE_DB_URL = "https://YOUR-PROJECT-default-rtdb.firebaseio.com";
+    window.FIREBASE_API_KEY = "YOUR_API_KEY";
+  <\/script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--cream:#FFF8F0;--card:#FFFFFF;--text:#2D1E0F;--soft:#8C7B6E;--border:rgba(45,30,15,0.1);--shadow:0 4px 24px rgba(45,30,15,0.09);--font-d:'Fredoka One',cursive;--font-b:'Nunito',sans-serif}
+    body{font-family:var(--font-b);background:var(--cream);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
+    #root{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    @keyframes wobble{0%,100%{transform:rotate(0deg)}20%{transform:rotate(-5deg)}40%{transform:rotate(5deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(3deg)}}
+    @keyframes pop{0%{transform:scale(0.7);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+    @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-7px) rotate(-2deg)}30%{transform:translateX(7px) rotate(2deg)}45%{transform:translateX(-5px)}60%{transform:translateX(5px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
+    @keyframes correctPop{0%{transform:scale(1)}30%{transform:scale(1.03)}100%{transform:scale(1);background:rgba(82,193,136,0.1)}}
+    @keyframes hbeat{0%,100%{transform:scale(1)}25%{transform:scale(1.4)}75%{transform:scale(1.1)}}
+    @keyframes lvlIn{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+    @keyframes cfetti{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(600deg);opacity:0}}
+    @keyframes tWarn{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+    @keyframes tDanger{0%,100%{color:#e85757}50%{color:#ff9999}}
+    @keyframes rowIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes blobBob{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,0.97)}}
+    @keyframes eyeBlink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.08)}}
+    @keyframes bgCloud{0%{transform:translateX(0)}100%{transform:translateX(50px)}}
+    @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.25)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
+    .screen{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+    .light-screen{background:linear-gradient(160deg,#E8F6FF 0%,#FFF0E8 50%,#F0EEFF 100%)}
+    .top-banner{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:9px 22px;background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);border-bottom:1px solid rgba(45,30,15,0.08);box-shadow:0 2px 12px rgba(45,30,15,0.06)}
+    .recykal-logo{height:24px;object-fit:contain;display:block}
+    .banner-tag{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#A0917F;background:rgba(45,30,15,0.06);border-radius:99px;padding:4px 10px}
+    .bg-blobs{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+    .bg-blob{position:absolute;border-radius:50%;opacity:0.15;filter:blur(40px)}
+    .bb1{width:320px;height:320px;background:#FFB3D9;top:-60px;right:-40px;animation:bgCloud 8s ease-in-out infinite alternate}
+    .bb2{width:280px;height:280px;background:#A8E6CF;bottom:-40px;left:-60px;animation:bgCloud 10s ease-in-out infinite alternate-reverse}
+    .bb3{width:200px;height:200px;background:#FFE082;top:40%;left:40%;animation:bgCloud 6s ease-in-out infinite alternate}
+    .login-card,.start-card{position:relative;z-index:10;text-align:center;max-width:460px;width:100%;background:var(--card);border-radius:28px;padding:30px 26px;box-shadow:var(--shadow),0 0 0 1px rgba(45,30,15,0.06);animation:pop .6s cubic-bezier(.34,1.56,.64,1) forwards;margin-top:50px}
+    .start-card{max-width:530px}
+    .blob-wrap{margin:0 auto 16px;animation:float 3s ease-in-out infinite}
+    .gtitle{font-family:var(--font-d);font-size:clamp(2.5rem,8vw,3.5rem);line-height:1;margin-bottom:5px;color:var(--text)}
+    .tai{color:#5BAADB}
+    .lsub{font-size:.93rem;color:var(--soft);margin-bottom:20px;font-weight:600}
+    .fg{margin-bottom:11px;text-align:left}
+    .fl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#A0917F;margin-bottom:4px;display:block}
+    .fi{width:100%;padding:11px 15px;background:#FAF6F2;border:2px solid rgba(45,30,15,0.1);border-radius:13px;font-family:var(--font-b);font-size:.93rem;color:var(--text);outline:none;transition:border-color .2s,background .2s}
+    .fi:focus{border-color:#5BAADB;background:#F0F8FF}
+    .fi::placeholder{color:#C4B5A8}
+    .rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px;text-align:left}
+    .rc{background:#FAF6F2;border:1.5px solid rgba(45,30,15,0.08);border-radius:14px;padding:11px 12px;display:flex;align-items:flex-start;gap:8px}
+    .re{font-size:1.35rem;flex-shrink:0;margin-top:1px}
+    .rt{font-size:.78rem;color:var(--soft);line-height:1.4}
+    .rt strong{color:var(--text);display:block;margin-bottom:1px}
+    .wpill{background:#F0F8FF;border:1.5px solid rgba(91,170,219,0.25);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:.9rem;color:var(--text);font-weight:700}
+    .wpill span{color:#5BAADB}
+    .btn{font-family:var(--font-d);font-size:1.25rem;color:#fff;border:none;border-radius:16px;padding:14px 48px;cursor:pointer;letter-spacing:.4px;transition:transform .1s,box-shadow .1s;width:100%;margin-top:5px}
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:translateY(2px);box-shadow:none!important}
+    .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+    .btn-blue{background:#5BAADB;box-shadow:0 5px 0 #2E7BAD}
+    .btn-blue:hover{box-shadow:0 7px 0 #2E7BAD}
+    .game-screen{justify-content:flex-start}
+    .gw{width:100%;max-width:650px;margin:0 auto;padding:14px 14px 22px;animation:lvlIn .4s ease forwards}
+    .ghdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+    .lbadge{font-family:var(--font-d);font-size:.86rem;padding:5px 13px;border-radius:99px;border:2px solid;background:var(--card);box-shadow:0 2px 6px rgba(45,30,15,0.08)}
+    .lvs{display:flex;gap:3px}
+    .hrt{font-size:1.35rem;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1))}
+    .hrt.lost{filter:grayscale(1);opacity:.3}
+    .hrt.beat{animation:hbeat .5s ease}
+    .trow{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--card);border-radius:15px;padding:8px 13px;box-shadow:var(--shadow)}
+    .tnum{font-family:var(--font-d);font-size:1.8rem;min-width:46px;text-align:center;line-height:1}
+    .tnum.ok{color:var(--text)}
+    .tnum.warn{color:#E8A23C;animation:tWarn .8s ease infinite}
+    .tnum.danger{animation:tDanger .45s ease infinite}
+    .tbw{flex:1;height:10px;background:#F2EDE8;border-radius:99px;overflow:hidden}
+    .tbf{height:100%;border-radius:99px;transition:width 1s linear,background 1s}
+    .tlbl{font-size:.66rem;font-weight:800;color:#C4B5A8;white-space:nowrap;text-transform:uppercase;letter-spacing:.4px}
+    .ptrow{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+    .pbw{flex:1;height:7px;background:#F2EDE8;border-radius:99px;overflow:hidden}
+    .pbf{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+    .plbl{font-size:.68rem;color:#C4B5A8;white-space:nowrap;font-weight:800}
+    .lscene{border-radius:20px;overflow:hidden;margin-bottom:10px;position:relative;height:106px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px 12px;box-shadow:var(--shadow)}
+    .stitle{font-family:var(--font-d);font-size:1.45rem;z-index:2;position:relative}
+    .ssub{font-size:.68rem;margin-top:1px;opacity:.6;position:relative;z-index:2}
+    .sicon{font-size:2.6rem;z-index:2;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
+    .sdeco{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7rem;opacity:.06;z-index:1}
+    .qdots{display:flex;gap:6px;margin-bottom:9px}
+    .qdot{width:8px;height:8px;border-radius:50%;background:#E8DDD6;transition:background .3s}
+    .qdot.done{background:#52C788}
+    .qdot.active{background:var(--text)}
+    .qcard{background:var(--card);border-radius:20px;padding:18px;margin-bottom:9px;border:2px solid rgba(45,30,15,0.07);box-shadow:var(--shadow);transition:border-color .2s}
+    .qcard.wrong{animation:shake .5s ease;border-color:#FF8A80!important;background:#FFF5F5}
+    .qcard.correct{animation:correctPop .6s ease;border-color:#A8E6CF!important}
+    .qcard.timeout{animation:shake .5s ease;border-color:#FFCC80!important;background:#FFFBF0}
+    .qtag{display:inline-block;font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 8px;border-radius:99px;margin-bottom:7px;background:#F2EDE8;color:#A0917F;border:1px solid rgba(45,30,15,.08)}
+    .qem{font-size:1.9rem;margin-bottom:5px;display:block;animation:blobBob 2s ease-in-out infinite}
+    .qtxt{font-size:1rem;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:13px;white-space:pre-line}
+    .stiles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px;justify-content:center}
+    .stile{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:1.05rem;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);animation:pop .25s ease forwards}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .obtn{background:#FAF6F2;border:2px solid rgba(45,30,15,.1);border-radius:13px;padding:10px 11px;text-align:left;cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;color:var(--text);transition:all .15s;display:flex;align-items:center;gap:7px;box-shadow:0 2px 0 rgba(45,30,15,.07)}
+    .obtn:hover{background:#F0F8FF;border-color:#A8D5F0;transform:translateY(-1px)}
+    .obtn.sel{background:#E8F4FF;border-color:#5BAADB;box-shadow:0 2px 0 #3A8FBF}
+    .oltr{width:22px;height:22px;min-width:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:900;background:rgba(45,30,15,.07);color:#A0917F}
+    .obtn.sel .oltr{background:#5BAADB;color:#fff}
+    .finp{width:100%;padding:11px 16px;background:#FAF6F2;border:2px solid rgba(45,30,15,.1);border-radius:13px;font-family:var(--font-d);font-size:1.15rem;color:var(--text);text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s}
+    .finp:focus{border-color:#5BAADB;background:#F0F8FF}
+    .finp::placeholder{font-family:var(--font-b);font-size:.85rem;letter-spacing:0;color:#C4B5A8}
+    .hintbar{background:#FFFBF0;border:1.5px solid #FFD97D;border-radius:12px;padding:8px 12px;font-size:.8rem;color:#B8860B;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:8px;animation:slideUp .3s ease}
+    .tobar{background:#FFF5F0;border:1.5px solid #FFBBA8;border-radius:12px;padding:8px 12px;font-size:.8rem;color:#C04A20;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:8px;animation:slideUp .3s ease}
+    .bsub{width:100%;font-family:var(--font-d);font-size:1.12rem;padding:13px;border:none;border-radius:15px;cursor:pointer;letter-spacing:.3px;transition:transform .1s,box-shadow .1s,background .2s}
+    .bsub:disabled{background:#E8DDD6;color:#B8A89C;cursor:not-allowed;box-shadow:0 4px 0 #D4C8BE}
+    .bsub:not(:disabled){color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.16)}
+    .bsub:not(:disabled):hover{transform:translateY(-2px)}
+    .bsub:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.16)!important}
+    .tovl{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;animation:pop .4s ease}
+    .tbig{font-size:5rem;margin-bottom:12px;animation:float 1s ease-in-out infinite;filter:drop-shadow(0 4px 12px rgba(0,0,0,.12))}
+    .ttitle{font-family:var(--font-d);font-size:2rem;margin-bottom:4px}
+    .tsub{font-size:.88rem;opacity:.65}
+    .tnote{margin-top:9px;font-size:.72rem;opacity:.4;font-weight:700}
+    .covl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:500;pointer-events:none}
+    .cburst{font-size:5rem;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+    .complete-screen{background:linear-gradient(160deg,#E8F6FF 0%,#FFF0E8 50%,#F0EEFF 100%)}
+    .complete-card{max-width:550px;width:100%;background:var(--card);border-radius:26px;padding:26px;box-shadow:var(--shadow),0 0 0 1px rgba(45,30,15,.06);animation:pop .6s cubic-bezier(.34,1.56,.64,1) forwards;margin-top:54px}
+    .trophy{font-size:3.8rem;display:block;margin-bottom:5px;animation:float 2.5s ease-in-out infinite;filter:drop-shadow(0 4px 8px rgba(251,191,36,.35))}
+    .ctitle{font-family:var(--font-d);font-size:clamp(1.8rem,6vw,2.7rem);margin-bottom:5px;color:var(--text)}
+    .csub{font-size:.88rem;color:var(--soft);margin-bottom:11px;line-height:1.6}
+    .ptag{display:inline-flex;align-items:center;gap:5px;background:#F0F8FF;border:1.5px solid rgba(91,170,219,.28);border-radius:99px;padding:4px 13px;font-weight:800;color:#3A8FBF;margin-bottom:11px;font-size:.8rem}
+    .tabs{display:flex;gap:5px;background:#FAF6F2;border-radius:14px;padding:4px;margin-bottom:14px}
+    .tab{flex:1;font-family:var(--font-d);font-size:.9rem;padding:8px;border:none;border-radius:11px;cursor:pointer;transition:all .2s}
+    .tab.active{background:#5BAADB;color:#fff;box-shadow:0 3px 0 #2E7BAD}
+    .tab.inactive{background:transparent;color:#A0917F}
+    .tab.inactive:hover{background:rgba(45,30,15,.04);color:var(--text)}
+    .srow{display:flex;gap:8px;margin-bottom:13px}
+    .sbox{flex:1;background:#FAF6F2;border:1.5px solid rgba(45,30,15,.08);border-radius:14px;padding:11px;text-align:center}
+    .sval{font-family:var(--font-d);font-size:1.25rem;margin-bottom:1px;color:var(--text)}
+    .skey{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#C4B5A8}
+    .codesec{background:#F0F8FF;border:2px dashed rgba(91,170,219,.38);border-radius:16px;padding:15px;margin-bottom:13px}
+    .codel{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#7ABED8;margin-bottom:6px}
+    .codev{font-family:var(--font-d);font-size:1.5rem;letter-spacing:5px;color:#3A8FBF;background:rgba(91,170,219,.1);border-radius:9px;padding:9px 14px;margin-bottom:5px;cursor:pointer;transition:background .2s;display:block;border:none;width:100%}
+    .codev:hover{background:rgba(91,170,219,.18)}
+    .codeh{font-size:.7rem;color:#A8CEDE}
+    .steps{text-align:left;background:#FAF6F2;border-radius:13px;padding:12px 13px;margin-bottom:12px}
+    .shead{font-weight:800;color:#C4B5A8;font-size:.64rem;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+    .si{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid rgba(45,30,15,.06);font-size:.8rem;color:var(--soft)}
+    .si:last-child{border-bottom:none}
+    .sn{width:19px;height:19px;border-radius:6px;background:#5BAADB;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:900;flex-shrink:0;margin-top:1px;color:#fff}
+    .lb-wrap{text-align:left}
+    .lb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+    .lb-title{font-family:var(--font-d);font-size:1.2rem;color:var(--text)}
+    .lb-refresh{background:#FAF6F2;border:1.5px solid rgba(45,30,15,.1);color:var(--soft);border-radius:9px;padding:5px 10px;cursor:pointer;font-size:.72rem;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:4px}
+    .lb-refresh:hover{background:#F0F8FF;border-color:#A8D5F0;color:#3A8FBF}
+    .lb-refresh.spinning svg{animation:spin .7s linear infinite}
+    .lb-empty{text-align:center;padding:26px 16px;color:#C4B5A8}
+    .lb-empty-icon{font-size:2.6rem;margin-bottom:7px;display:block}
+    .lb-setup{background:#FFFBF0;border:1.5px solid #FFD97D;border-radius:13px;padding:13px;text-align:left;margin-bottom:11px}
+    .lb-setup-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#B8860B;margin-bottom:6px}
+    .lb-setup-step{font-size:.76rem;color:var(--soft);padding:2px 0;display:flex;gap:6px}
+    .lb-setup-step span{color:#B8860B;font-weight:800;flex-shrink:0}
+    .lb-row{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:13px;margin-bottom:5px;border:1.5px solid transparent;animation:rowIn .3s ease forwards;opacity:0}
+    .lb-row.me{background:#FFF8E8;border-color:#FFD97D;animation:glow 2s ease infinite,rowIn .3s ease forwards}
+    .lb-row.top1{background:#FFF8E8;border-color:rgba(251,191,36,.28)}
+    .lb-row.top2{background:#F8F8F8;border-color:rgba(180,180,180,.18)}
+    .lb-row.top3{background:#FFF5F0;border-color:rgba(232,130,80,.18)}
+    .lb-row.other{background:#FAF6F2;border-color:rgba(45,30,15,.06)}
+    .lb-rank{font-family:var(--font-d);font-size:1.25rem;min-width:30px;text-align:center}
+    .lb-info{flex:1;min-width:0}
+    .lb-name{font-weight:800;font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lb-empid{font-size:.65rem;color:#C4B5A8;margin-top:1px}
+    .lb-time{font-family:var(--font-d);font-size:.9rem;white-space:nowrap;color:var(--text)}
+    .lb-lives{font-size:.75rem}
+    .lb-me-tag{font-size:.56rem;font-weight:800;background:#FFD97D;color:#7A5C00;border-radius:4px;padding:1px 4px;margin-left:4px;vertical-align:middle}
+    .btn-restart{font-family:var(--font-d);font-size:.85rem;background:#FAF6F2;border:1.5px solid rgba(45,30,15,.1);color:var(--soft);border-radius:99px;padding:7px 20px;cursor:pointer;transition:all .2s;box-shadow:0 2px 0 rgba(45,30,15,.07)}
+    .btn-restart:hover{background:#F0F8FF;border-color:#A8D5F0;color:#3A8FBF}
+    .cfetti{position:fixed;top:-20px;animation:cfetti 4s ease-in forwards;pointer-events:none;z-index:9999;border-radius:3px}
+    @media(max-width:480px){.opts{grid-template-columns:1fr}.rules-grid{grid-template-columns:1fr}.gw{padding:9px 9px 18px}.srow{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback} = React;
+const DB_URL=window.FIREBASE_DB_URL,DB_KEY=window.FIREBASE_API_KEY,DB_ON=DB_URL&&!DB_URL.includes("YOUR-PROJECT");
+async function dbPush(d){if(!DB_ON)return null;try{const r=await fetch(`${DB_URL}/scores.json`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});return r.json()}catch(e){return null}}
+async function dbRead(){if(!DB_ON)return{};try{const r=await fetch(`${DB_URL}/scores.json`);return await r.json()||{}}catch(e){return{}}}
+const TIMERS=[50,45,35,28,22];
+const LEVELS=[
+  {id:1,name:"The Desk",icon:"\u{1F5A5}",bg:"linear-gradient(135deg,#D4EEFF,#EEF8FF)",text:"#1A4A6E",sub:"#5B8DB3",ac:"#5BAADB",acd:"#2E7BAD",bc:"#FFD166",deco:"\u{1F4BB}",sceneSub:"Your workspace awaits...",
+   questions:[
+    {type:"mcq",emoji:"\u{1F916}",tag:"Multiple Choice",question:"What does 'AI' stand for?",options:["Always Internet","Artificial Intelligence","Auto Input","Advanced Interface"],ci:1,hint:"Think about what makes computers seem 'smart'! Starts with 'Artificial...' \u{1F9E0}"},
+    {type:"fill",emoji:"\u{1F4AC}",tag:"Fill in the Blank",question:'The famous AI chatbot by OpenAI is called "Chat___"\n(Type the 3 missing letters)',answer:"gpt",hint:"Three letters: G, P, T \u{1F521}"}
+   ]},
+  {id:2,name:"Break Room",icon:"\u2615",bg:"linear-gradient(135deg,#FFE0CC,#FFF0E8)",text:"#6E2A0A",sub:"#B36040",ac:"#FF8C5A",acd:"#D4542A",bc:"#A8E6CF",deco:"\u{1F9CB}",sceneSub:"Coffee break? Not yet!",
+   questions:[
+    {type:"scramble",emoji:"\u{1F500}",tag:"Unscramble",question:"Rearrange the letters to find a tech term:",tiles:["T","O","B","O","R"],answer:"robot",hint:"It beeps, boops, does your chores! \u{1F9BE}"},
+    {type:"mcq",emoji:"\u{1F4FA}",tag:"Multiple Choice",question:"Which of these uses AI in your everyday life?",options:["A stapler \u{1F4CC}","Netflix recommendations \u{1F3AC}","A whiteboard \u{1F58A}","A coffee mug \u2615"],ci:1,hint:"It suggests what show to watch next! \u{1F37F}"}
+   ]},
+  {id:3,name:"Waste Zone",icon:"\u{1F5D1}",bg:"linear-gradient(135deg,#C0EED4,#E6F8EE)",text:"#1A5C38",sub:"#3A8A5C",ac:"#52C788",acd:"#2E8A55",bc:"#FFB3B3",deco:"\u267B",sceneSub:"Trash those wrong answers!",
+   questions:[
+    {type:"mcq",emoji:"\u2699",tag:"Multiple Choice",question:"What does 'automation' help you do at work?",options:["Write more emails \u{1F4E7}","Handle repetitive tasks auto \u2705","More meetings \u{1F634}","Print more docs \u{1F5A8}"],ci:1,hint:"Less boring clicks, more time for fun stuff! \u2728"},
+    {type:"fill",emoji:"\u{1F9E0}",tag:"Fill in the Blank",question:'When computers learn from data, it's called:\n"Machine ___"  (one word)',answer:"learning",hint:"Rhymes with 'earning'! ML = Machine ___ \u{1F4DA}"}
+   ]},
+  {id:4,name:"Meeting Room",icon:"\u{1F4CB}",bg:"linear-gradient(135deg,#DDD6FF,#EEE8FF)",text:"#36166E",sub:"#6845B8",ac:"#8B6BD8",acd:"#6245B3",bc:"#FFE082",deco:"\u{1F4CA}",sceneSub:"Let's talk strategy.",
+   questions:[
+    {type:"scramble",emoji:"\u{1F500}",tag:"Unscramble",question:"Unscramble — it's what you TYPE to talk to an AI:",tiles:["T","P","M","O","R","P"],answer:"prompt",hint:"You type a ___ to ask ChatGPT a question \u{1F4DD}"},
+    {type:"mcq",emoji:"\u{1F3A8}",tag:"Multiple Choice",question:"AI that creates new text, images or music is called ___ AI",options:["Robotic AI \u{1F916}","Predictive AI \u{1F4C8}","Generative AI \u2728","Reactive AI \u26A1"],ci:2,hint:"It GENErates new content! Think: gen... \u{1F331}"}
+   ]},
+  {id:5,name:"The Exit",icon:"\u{1F6AA}",bg:"linear-gradient(135deg,#FFCCE0,#FFE8F4)",text:"#6E1038",sub:"#B83468",ac:"#E8608C",acd:"#C03468",bc:"#B3E0FF",deco:"\u2B50",sceneSub:"Almost free!",
+   questions:[
+    {type:"mcq",emoji:"\u{1F9EC}",tag:"Multiple Choice",question:"A 'neural network' in AI is inspired by which human organ?",options:["The Heart \u2764","The Lungs \u{1F4A8}","The Brain \u{1F9E0}","The Stomach \u{1FAB4}"],ci:2,hint:"It's the organ you're using RIGHT NOW! \u{1F92F}"},
+    {type:"scramble",emoji:"\u{1F680}",tag:"Unscramble",question:"Last one! Unscramble to reveal where AI is taking us...",tiles:["E","R","U","T","U","F"],answer:"future",hint:"Not the past, not the present... \u{1F52E}"}
+   ]}
+];
+const MEDALS=["\u{1F947}","\u{1F948}","\u{1F949}"],TCOLS=["#FF8C5A","#5BAADB","#8B6BD8","#52C788","#E8608C","#FFB347"],OPTS=["A","B","C","D"];
+const fmtMs=ms=>{const s=Math.floor(ms/1000),m=Math.floor(s/60);return m>0?`${m}m ${s%60}s`:`${s}s`};
+function genCode(name){const ch="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",ts=Date.now().toString(36).toUpperCase().slice(-3);let r="";for(let i=0;i<4;i++)r+=ch[Math.floor(Math.random()*ch.length)];const ini=(name.split(" ").map(w=>w[0]||"").join("").toUpperCase().slice(0,2)).padEnd(2,"X");return `AI${ini}-${r}${ts}`}
+const LOGO_SRC="data:image/webp;base64,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";
+function Confetti(){const cols=["#FFD166","#FF8C5A","#5BAADB","#8B6BD8","#52C788","#E8608C","#FFB3D9"];return React.createElement("div",{"aria-hidden":"true"},Array.from({length:45},(_,i)=>React.createElement("div",{key:i,className:"cfetti",style:{left:`${Math.random()*100}vw`,background:cols[i%cols.length],animationDelay:`${Math.random()*2}s`,animationDuration:`${2.5+Math.random()*2}s`,transform:`rotate(${Math.random()*360}deg)`,borderRadius:Math.random()>.5?"50%":"3px",width:`${7+Math.random()*7}px`,height:`${5+Math.random()*6}px`}})))}
+function Blob({size=80,color="#FFD166",levelIdx=0}){const acc=LEVELS[levelIdx]?.ac||"#5BAADB";return(<svg width={size} height={size*1.1} viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg" style={{filter:"drop-shadow(0 4px 8px rgba(0,0,0,0.1))"}}>
+<ellipse cx="40" cy="60" rx="24" ry="26" fill={color}/>
+<circle cx="40" cy="32" r="22" fill={color}/>
+<circle cx="31" cy="29" r="7.5" fill="white"/><circle cx="49" cy="29" r="7.5" fill="white"/>
+<circle cx="32.5" cy="29.5" r="4.5" fill="#2D1E0F" style={{animation:"eyeBlink 4s ease-in-out infinite"}}/><circle cx="50.5" cy="29.5" r="4.5" fill="#2D1E0F" style={{animation:"eyeBlink 4s ease-in-out infinite .15s"}}/>
+<circle cx="34" cy="27.5" r="1.5" fill="white" opacity="0.85"/><circle cx="52" cy="27.5" r="1.5" fill="white" opacity="0.85"/>
+<path d="M32 40 Q40 47 48 40" stroke="#2D1E0F" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+<circle cx="24" cy="38" r="5" fill="#FFB3B3" opacity="0.5"/><circle cx="56" cy="38" r="5" fill="#FFB3B3" opacity="0.5"/>
+<ellipse cx="17" cy="58" rx="7" ry="4.5" fill={color} transform="rotate(-35 17 58)"/>
+<ellipse cx="63" cy="58" rx="7" ry="4.5" fill={color} transform="rotate(35 63 58)"/>
+<ellipse cx="30" cy="82" rx="7" ry="5" fill={color}/><ellipse cx="50" cy="82" rx="7" ry="5" fill={color}/>
+{levelIdx===0&&<rect x="31" y="65" width="18" height="11" rx="3" fill={acc} opacity="0.65"/>}
+{levelIdx===1&&<path d="M35 70 Q40 65 45 70" stroke={acc} strokeWidth="2.5" fill="none" strokeLinecap="round"/>}
+{levelIdx===2&&<circle cx="40" cy="70" r="5" fill={acc} opacity="0.65"/>}
+{levelIdx===3&&<rect x="34" y="67" width="12" height="7" rx="2" fill={acc} opacity="0.55"/>}
+{levelIdx===4&&<circle cx="40" cy="67" r="4" fill="white" opacity="0.75"/>}
+</svg>);}
+function Leaderboard({myCode}){const [rows,setRows]=useState(null);const [loading,setLoading]=useState(false);const load=useCallback(async()=>{setLoading(true);const raw=await dbRead();if(raw){setRows(Object.values(raw).sort((a,b)=>a.timeTaken-b.timeTaken))}setLoading(false)},[]);useEffect(()=>{load();const id=setInterval(load,15000);return()=>clearInterval(id)},[]);
+if(!DB_ON)return(<div><div className="lb-setup"><div className="lb-setup-title">Enable Live Leaderboard</div><div className="lb-setup-step"><span>1.</span>Go to firebase.google.com → New project</div><div className="lb-setup-step"><span>2.</span>Build → Realtime Database → Create → Test mode</div><div className="lb-setup-step"><span>3.</span>Project Settings → Web app → copy config values</div><div className="lb-setup-step"><span>4.</span>Open HTML → paste DB URL + API key at the very top</div></div><div className="lb-empty"><span className="lb-empty-icon">📊</span><div style={{fontWeight:700,fontSize:".8rem"}}>Leaderboard not configured yet</div></div></div>);
+return(<div className="lb-wrap"><div className="lb-header"><div className="lb-title">🏆 Live Leaderboard</div><button className={`lb-refresh ${loading?"spinning":""}`} onClick={load}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>{loading?"Refreshing...":"Refresh"}</button></div>
+{!rows||rows.length===0?(<div className="lb-empty"><span className="lb-empty-icon">{loading?"⏳":"🎮"}</span><div style={{fontWeight:700,fontSize:".8rem"}}>{loading?"Loading...":"No scores yet — be first!"}</div></div>):rows.slice(0,15).map((r,i)=>{const isMe=r.code===myCode,cls=isMe?"me":i===0?"top1":i===1?"top2":i===2?"top3":"other";return(<div key={i} className={`lb-row ${cls}`} style={{animationDelay:`${i*.06}s`}}><div className="lb-rank">{i<3?MEDALS[i]:`${i+1}`}</div><div className="lb-info"><div className="lb-name">{r.name}{isMe&&<span className="lb-me-tag">YOU</span>}</div><div className="lb-empid">{r.empId}</div></div><div style={{textAlign:"right"}}><div className="lb-time" style={{color:i===0?"#B8860B":i===1?"#888":i===2?"#C04A20":"#A0917F"}}>⏱️ {fmtMs(r.timeTaken)}</div><div className="lb-lives">{"❤️".repeat(r.livesLeft)}{"🖤".repeat(3-r.livesLeft)}</div></div></div>)})}</div>);}
+function LoginScreen({onLogin}){const [name,setName]=useState("");const [email,setEmail]=useState("");const [empId,setEmpId]=useState("");const ok=name.trim().length>1&&email.includes("@")&&empId.trim().length>0;const go=()=>ok&&onLogin(name.trim(),email.trim(),empId.trim());return(<div className="screen light-screen"><div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div><div className="top-banner"><img src={LOGO_SRC} alt="Recykal" className="recykal-logo"/><span className="banner-tag">Tech Day 2025</span></div><div className="login-card"><div className="blob-wrap" style={{width:78}}><Blob size={78} color="#FFD166" levelIdx={0}/></div><h1 className="gtitle"><span className="tai">AI </span>Quest</h1><p className="lsub">Escape the office. Prove you know AI! 🏃</p><div className="fg"><label className="fl">Full Name</label><input className="fi" type="text" placeholder="e.g. Priya Sharma" value={name} onChange={e=>setName(e.target.value)}/></div><div className="fg"><label className="fl">Work Email</label><input className="fi" type="email" placeholder="you@recykal.com" value={email} onChange={e=>setEmail(e.target.value)}/></div><div className="fg"><label className="fl">Employee ID</label><input className="fi" type="text" placeholder="e.g. RCY-1042" value={empId} onChange={e=>setEmpId(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/></div><button className="btn btn-blue" disabled={!ok} onClick={go}>Let's Go! →</button></div></div>);}
+function StartScreen({player,onStart}){return(<div className="screen light-screen"><div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div><div className="top-banner"><img src={LOGO_SRC} alt="Recykal" className="recykal-logo"/><span className="banner-tag">Tech Day 2025</span></div><div className="start-card"><div style={{width:76,margin:"0 auto 14px",animation:"float 3s ease-in-out infinite"}}><Blob size={76} color="#A8E6CF" levelIdx={0}/></div><h1 className="gtitle"><span className="tai">AI </span>Quest</h1><p className="lsub">Escape the office. Prove you know AI! 🏃</p><div className="wpill">👋 Hey <span>{player.name}</span>! Ready to show what you know?</div><div className="rules-grid"><div className="rc"><span className="re">🏢</span><div className="rt"><strong>5 Levels</strong>Desk → Break Room → Waste → Meeting → Exit</div></div><div className="rc"><span className="re">⏱️</span><div className="rt"><strong>Timer Shrinks!</strong>50s → 45s → 35s → 28s → 22s per question</div></div><div className="rc"><span className="re">❤️</span><div className="rt"><strong>3 Lives</strong>Wrong or time's up = lose a heart + hint</div></div><div className="rc"><span className="re">🏆</span><div className="rt"><strong>Live Leaderboard</strong>See who's topping charts after you finish!</div></div></div><button className="btn btn-blue" onClick={onStart}>START PLAYING →</button></div></div>);}
+function CompleteScreen({player,code,timeTaken,livesLeft,onRestart}){const [tab,setTab]=useState("result");const [copied,setCopied]=useState(false);const copy=()=>{navigator.clipboard?.writeText(code).catch(()=>{});setCopied(true);setTimeout(()=>setCopied(false),2000)};return(<div className="screen complete-screen"><Confetti/><div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div><div className="top-banner"><img src={LOGO_SRC} alt="Recykal" className="recykal-logo"/><span className="banner-tag">Tech Day 2025</span></div><div className="complete-card"><span className="trophy">🏆</span><h2 className="ctitle">You Escaped!</h2><div className="ptag">🤖 {player.name} · {player.empId}</div><p className="csub">All 5 levels crushed! Here's your code 👇</p><div className="tabs"><button className={`tab ${tab==="result"?"active":"inactive"}`} onClick={()=>setTab("result")}>🎉 Your Result</button><button className={`tab ${tab==="lb"?"active":"inactive"}`} onClick={()=>setTab("lb")}>📊 Leaderboard</button></div>{tab==="result"&&<><div className="srow"><div className="sbox"><div className="sval">⏱️ {fmtMs(timeTaken)}</div><div className="skey">Total Time</div></div><div className="sbox"><div className="sval">{"❤️".repeat(livesLeft)}{"🖤".repeat(3-livesLeft)}</div><div className="skey">Lives Left</div></div></div><div className="codesec"><div className="codel">Your Completion Code</div><button className="codev" onClick={copy}>{code}</button><div className="codeh">{copied?"✅ Copied!":"👆 Tap to copy"}</div></div><div className="steps"><div className="shead">What to do next</div><div className="si"><div className="sn">1</div><div>Copy your code: <strong style={{color:"#3A8FBF"}}>{code}</strong></div></div><div className="si"><div className="sn">2</div><div>Open the Google Form on Slack / event board</div></div><div className="si"><div className="sn">3</div><div>Submit your Name, Employee ID and this code</div></div><div className="si"><div className="sn">4</div><div>Check the 📊 Leaderboard tab to see your rank! 🚀</div></div></div></>}{tab==="lb"&&<Leaderboard myCode={code}/>}<button className="btn-restart" onClick={onRestart}>↩ Play again</button></div></div>);}
+function GameScreen({player,onComplete}){const [li,setLi]=useState(0);const [qi,setQi]=useState(0);const [lives,setLives]=useState(3);const [hint,setHint]=useState(false);const [toMsg,setToMsg]=useState(false);const [sel,setSel]=useState(null);const [inp,setInp]=useState("");const [cs,setCs]=useState(null);const [trans,setTrans]=useState(null);const [burst,setBurst]=useState(false);const [hb,setHb]=useState(-1);const [tkey,setTkey]=useState(0);const [tLeft,setTLeft]=useState(TIMERS[0]);const [tRun,setTRun]=useState(true);const t0=useRef(Date.now());const iRef=useRef(null);const lv=LEVELS[li];const q=lv.questions[qi];const ts=TIMERS[li];const canSub=q.type==="mcq"?sel!==null:inp.trim().length>0;const stopT=()=>{clearInterval(iRef.current);setTRun(false)};const startT=(s)=>{clearInterval(iRef.current);setTLeft(s);setTRun(true)};const handleTO=useCallback(()=>{setCs("timeout");setToMsg(true);setHint(true);setLives(l=>{const nl=Math.max(0,l-1);setHb(nl);setTimeout(()=>{setHb(-1);setCs(null);setSel(null);setInp("");setToMsg(false);if(nl===0)setLives(3);setTkey(k=>k+1);startT(TIMERS[li]);},1400);return nl});},[li]);useEffect(()=>{if(!tRun||trans||cs)return;iRef.current=setInterval(()=>{setTLeft(t=>{if(t<=1){clearInterval(iRef.current);handleTO();return 0}return t-1})},1000);return()=>clearInterval(iRef.current)},[tRun,trans,cs,tkey]);const advance=()=>{if(qi===0){setQi(1);setTkey(k=>k+1);startT(ts)}else if(li===LEVELS.length-1){onComplete(Date.now()-t0.current,lives)}else{const nl=li+1;setTrans({msg:`Level ${li+1} Complete!`,sub:`Moving to ${LEVELS[nl].name}...`,icon:LEVELS[nl].icon,note:`Timer drops to ${TIMERS[nl]}s next!`,bg:LEVELS[nl].bg,text:LEVELS[nl].text});setTimeout(()=>{setTrans(null);setLi(nl);setQi(0);setHint(false);setTkey(k=>k+1);startT(TIMERS[nl])},2200)}};const check=()=>{if(cs)return;const ok=q.type==="mcq"?sel===q.ci:inp.trim().toLowerCase()===q.answer.toLowerCase();if(ok){stopT();setCs("correct");setBurst(true);setTimeout(()=>setBurst(false),900);setTimeout(()=>{setCs(null);setHint(false);setToMsg(false);setSel(null);setInp("");advance()},900)}else{stopT();setCs("wrong");setLives(l=>{const nl=Math.max(0,l-1);setHb(nl);setHint(true);setTimeout(()=>{setHb(-1);setCs(null);setSel(null);setInp("");if(nl===0)setLives(3);setTkey(k=>k+1);startT(ts)},1000);return nl})}};const pct=(tLeft/ts)*100,tst=tLeft>ts*.5?"ok":tLeft>ts*.2?"warn":"danger",tcol=tLeft>ts*.5?lv.ac:tLeft>ts*.2?"#E8A23C":"#E85757";const blobColors=["#FFD166","#A8E6CF","#FFB3B3","#C9B8E8","#B3D9FF"];
+return(<div className="screen game-screen" style={{background:lv.bg,paddingTop:58}}><div className="top-banner"><img src={LOGO_SRC} alt="Recykal" className="recykal-logo"/><span className="banner-tag" style={{color:lv.sub}}>{lv.name}</span></div>{trans&&<div className="tovl" style={{background:trans.bg}}><div className="tbig">{trans.icon}</div><div className="ttitle" style={{color:trans.text}}>{trans.msg}</div><div className="tsub" style={{color:trans.text}}>{trans.sub}</div><div className="tnote" style={{color:trans.text}}>{trans.note}</div></div>}{burst&&<div className="covl"><div className="cburst">✅</div></div>}<div className="gw" key={`${li}-${qi}`}><div className="ghdr"><div className="lbadge" style={{borderColor:lv.ac,color:lv.text}}>Level {li+1}/5 — {lv.name}</div><div className="lvs">{[0,1,2].map(i=><span key={i} className={`hrt ${i>=lives?"lost":""} ${hb===i?"beat":""}`}>❤️</span>)}</div></div><div className="trow"><div className={`tnum ${tst}`}>{tLeft}s</div><div className="tbw"><div className="tbf" style={{width:`${pct}%`,background:tcol}}/></div><div className="tlbl">time left</div></div><div className="ptrow"><div className="pbw"><div className="pbf" style={{width:`${(li*2+qi)/10*100}%`,background:lv.ac}}/></div><span className="plbl">{li*2+qi}/10</span></div><div className="lscene" style={{background:lv.bg,boxShadow:`0 4px 20px ${lv.ac}28`}}><div className="sdeco">{lv.deco}</div><div><div className="stitle" style={{color:lv.text}}>{lv.name}</div><div className="ssub" style={{color:lv.sub}}>{lv.sceneSub}</div></div><div style={{display:"flex",alignItems:"flex-end",gap:6}}><div style={{animation:"float 2.8s ease-in-out infinite"}}><Blob size={60} color={blobColors[li]} levelIdx={li}/></div><div className="sicon">{lv.icon}</div></div></div><div className="qdots">{lv.questions.map((_,i)=><div key={i} className={`qdot ${i<qi?"done":i===qi?"active":""}`}/>)}</div><div className={`qcard ${cs||""}`} style={{borderColor:cs?"":lv.ac+"18"}}><span className="qtag">{q.tag}</span><span className="qem">{q.emoji}</span><div className="qtxt">{q.question}</div>{q.type==="scramble"&&<div className="stiles">{q.tiles.map((l,i)=><div key={i} className="stile" style={{background:TCOLS[i%TCOLS.length],animationDelay:`${i*.05}s`}}>{l}</div>)}</div>}{q.type==="mcq"&&<div className="opts">{q.options.map((o,i)=>(<button key={i} className={`obtn ${sel===i?"sel":""}`} style={sel===i?{borderColor:lv.ac,background:`${lv.ac}12`,boxShadow:`0 2px 0 ${lv.acd}`}:{}} onClick={()=>setSel(i)}><div className="oltr" style={sel===i?{background:lv.ac,color:"#fff"}:{}}>{OPTS[i]}</div>{o}</button>))}</div>}{(q.type==="fill"||q.type==="scramble")&&<input className="finp" type="text" placeholder="Type your answer…" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&canSub&&check()} style={inp?{borderColor:lv.ac}:{}} autoComplete="off" spellCheck={false}/>}</div>{toMsg&&<div className="tobar"><span>⏰</span><span><strong>Time's up!</strong> You lose a heart. Here's a hint…</span></div>}{hint&&<div className="hintbar"><span>💡</span><span><strong>Hint:</strong> {q.hint}</span></div>}<button className="bsub" disabled={!canSub||!!cs} onClick={check} style={canSub&&!cs?{background:lv.ac,boxShadow:`0 5px 0 ${lv.acd}`}:{}}>{cs==="correct"?"✅ Correct!":cs==="wrong"?"❌ Try again!":cs==="timeout"?"⏰ Time's up!":"Submit Answer →"}</button></div></div>);}
+function App(){const [screen,setScreen]=useState("login");const [player,setPlayer]=useState(null);const [result,setResult]=useState(null);const handleComplete=async(timeTaken,livesLeft)=>{const code=genCode(player.name);await dbPush({name:player.name,email:player.email,empId:player.empId,code,timeTaken,livesLeft,ts:Date.now()});setResult({code,timeTaken,livesLeft});setScreen("complete")};return screen==="login"?<LoginScreen onLogin={(n,e,id)=>{setPlayer({name:n,email:e,empId:id});setScreen("start")}}/>:screen==="start"?<StartScreen player={player} onStart={()=>setScreen("game")}/>:screen==="game"?<GameScreen player={player} onComplete={handleComplete}/>:<CompleteScreen player={player} code={result.code} timeTaken={result.timeTaken} livesLeft={result.livesLeft} onRestart={()=>{setResult(null);setScreen("login")}}/>;}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
