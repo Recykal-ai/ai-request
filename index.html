@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Quest — Recykal Tech Day</title>
+<script>
+window.FIREBASE_DB_URL="https://YOUR-PROJECT-default-rtdb.firebaseio.com";
+window.FIREBASE_API_KEY="YOUR_API_KEY";
+</script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#FFF8F0;--card:#FFFFFF;--text:#2D1E0F;--soft:#8C7B6E;--shadow:0 4px 24px rgba(45,30,15,.09);--font-d:'Cooper Black','Cooper BT','Lilita One',serif;--font-b:'Nunito',sans-serif}
+body{font-family:var(--font-b);background:var(--cream);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
+#root{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-7px) rotate(-2deg)}30%{transform:translateX(7px) rotate(2deg)}45%{transform:translateX(-5px)}60%{transform:translateX(5px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
+@keyframes hbeat{0%,100%{transform:scale(1)}25%{transform:scale(1.4)}75%{transform:scale(1.1)}}
+@keyframes lvlIn{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes cfetti{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(600deg);opacity:0}}
+@keyframes tWarn{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes tDanger{0%,100%{color:#e85757}50%{color:#ff9999}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes bgCloud{0%{transform:translateX(0)}100%{transform:translateX(50px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.25)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
+@keyframes rankIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes lineIn{from{stroke-dashoffset:400}to{stroke-dashoffset:0}}
+@keyframes gameOverIn{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
+.screen{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+.light-screen{background:linear-gradient(160deg,#E8F6FF 0%,#FFF0E8 50%,#F0EEFF 100%)}
+.top-banner{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:9px 22px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(45,30,15,.08);box-shadow:0 2px 12px rgba(45,30,15,.06)}
+.recykal-logo{height:24px;object-fit:contain;display:block}
+.banner-tag{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#A0917F;background:rgba(45,30,15,.06);border-radius:99px;padding:4px 10px}
+.bg-blobs{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.bg-blob{position:absolute;border-radius:50%;opacity:.15;filter:blur(40px)}
+.bb1{width:320px;height:320px;background:#FFB3D9;top:-60px;right:-40px;animation:bgCloud 8s ease-in-out infinite alternate}
+.bb2{width:280px;height:280px;background:#A8E6CF;bottom:-40px;left:-60px;animation:bgCloud 10s ease-in-out infinite alternate-reverse}
+.bb3{width:200px;height:200px;background:#FFE082;top:40%;left:40%;animation:bgCloud 6s ease-in-out infinite alternate}
+.login-card,.start-card{position:relative;z-index:10;text-align:center;max-width:460px;width:100%;background:var(--card);border-radius:28px;padding:30px 26px;box-shadow:var(--shadow),0 0 0 1px rgba(45,30,15,.06);animation:pop .6s cubic-bezier(.34,1.56,.64,1) forwards;margin-top:50px}
+.start-card{max-width:530px}
+.gtitle{font-family:var(--font-d);font-size:clamp(2.4rem,8vw,3.4rem);line-height:1;margin-bottom:5px;color:var(--text)}
+.tai{color:#5BAADB}
+.lsub{font-size:.93rem;color:var(--soft);margin-bottom:20px;font-weight:600}
+.fg{margin-bottom:11px;text-align:left}
+.fl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#A0917F;margin-bottom:4px;display:block}
+.fi{width:100%;padding:11px 15px;background:#FAF6F2;border:2px solid rgba(45,30,15,.1);border-radius:13px;font-family:var(--font-b);font-size:.93rem;color:var(--text);outline:none;transition:border-color .2s,background .2s}
+.fi:focus{border-color:#5BAADB;background:#F0F8FF}
+.fi::placeholder{color:#C4B5A8}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px;text-align:left}
+.rc{background:#FAF6F2;border:1.5px solid rgba(45,30,15,.08);border-radius:14px;padding:11px 12px;display:flex;align-items:flex-start;gap:8px}
+.re{font-size:1.35rem;flex-shrink:0;margin-top:1px}
+.rt{font-size:.78rem;color:var(--soft);line-height:1.4}
+.rt strong{color:var(--text);display:block;margin-bottom:1px}
+.wpill{background:#F0F8FF;border:1.5px solid rgba(91,170,219,.25);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:.9rem;color:var(--text);font-weight:700}
+.wpill span{color:#5BAADB}
+.btn{font-family:var(--font-d);font-size:1.2rem;color:#fff;border:none;border-radius:16px;padding:14px 48px;cursor:pointer;letter-spacing:.3px;transition:transform .1s,box-shadow .1s;width:100%;margin-top:5px}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(2px)!important;box-shadow:none!important}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.btn-blue{background:#5BAADB;box-shadow:0 5px 0 #2E7BAD}
+.btn-blue:hover{box-shadow:0 7px 0 #2E7BAD}
+.btn-red{background:#E85757;box-shadow:0 5px 0 #B83030}
+.btn-red:hover{box-shadow:0 7px 0 #B83030}
+.game-screen{justify-content:flex-start}
+.gw{width:100%;max-width:650px;margin:0 auto;padding:14px 14px 22px;animation:lvlIn .35s ease forwards}
+.ghdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.lbadge{font-family:var(--font-d);font-size:.84rem;padding:5px 13px;border-radius:99px;border:2px solid;background:var(--card);box-shadow:0 2px 6px rgba(45,30,15,.08)}
+.lvs{display:flex;gap:3px}
+.hrt{font-size:1.35rem;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1))}
+.hrt.lost{filter:grayscale(1);opacity:.3}
+.hrt.beat{animation:hbeat .5s ease}
+.trow{display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--card);border-radius:15px;padding:8px 13px;box-shadow:var(--shadow)}
+.tnum{font-family:var(--font-d);font-size:1.8rem;min-width:46px;text-align:center;line-height:1}
+.tnum.ok{color:var(--text)}
+.tnum.warn{color:#E8A23C;animation:tWarn .8s ease infinite}
+.tnum.danger{animation:tDanger .45s ease infinite}
+.tbw{flex:1;height:10px;background:#F2EDE8;border-radius:99px;overflow:hidden}
+.tbf{height:100%;border-radius:99px;transition:width 1s linear,background 1s}
+.tlbl{font-size:.66rem;font-weight:800;color:#C4B5A8;white-space:nowrap;text-transform:uppercase}
+.ptrow{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.pbw{flex:1;height:7px;background:#F2EDE8;border-radius:99px;overflow:hidden}
+.pbf{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.plbl{font-size:.68rem;color:#C4B5A8;white-space:nowrap;font-weight:800}
+.lscene{border-radius:20px;overflow:hidden;margin-bottom:10px;position:relative;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;box-shadow:var(--shadow)}
+.stitle{font-family:var(--font-d);font-size:1.45rem;z-index:2;position:relative}
+.ssub{font-size:.68rem;margin-top:2px;opacity:.6;z-index:2;position:relative}
+.sicon{font-size:2.6rem;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
+.sdeco{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7rem;opacity:.06;z-index:1}
+.qdots{display:flex;gap:6px;margin-bottom:9px}
+.qdot{width:8px;height:8px;border-radius:50%;background:#E8DDD6;transition:background .3s}
+.qdot.done{background:#52C788}
+.qdot.active{background:var(--text)}
+.qcard{background:var(--card);border-radius:20px;padding:18px;margin-bottom:9px;border:2px solid rgba(45,30,15,.07);box-shadow:var(--shadow);transition:border-color .2s}
+.qcard.wrong{animation:shake .5s ease;border-color:#FF8A80!important;background:#FFF5F5}
+.qcard.correct{border-color:#A8E6CF!important}
+.qcard.timeout{animation:shake .5s ease;border-color:#FFCC80!important;background:#FFFBF0}
+.qtag{display:inline-block;font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;padding:3px 8px;border-radius:99px;margin-bottom:7px;background:#F2EDE8;color:#A0917F;border:1px solid rgba(45,30,15,.08)}
+.qem{font-size:1.9rem;margin-bottom:5px;display:block}
+.qtxt{font-size:1rem;font-weight:700;line-height:1.5;color:var(--text);margin-bottom:13px}
+.stiles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px;justify-content:center}
+.stile{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:1.05rem;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);animation:pop .25s ease forwards}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.obtn{background:#FAF6F2;border:2px solid rgba(45,30,15,.1);border-radius:13px;padding:10px 11px;text-align:left;cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;color:var(--text);transition:all .15s;display:flex;align-items:center;gap:7px;box-shadow:0 2px 0 rgba(45,30,15,.07)}
+.obtn:hover{background:#F0F8FF;border-color:#A8D5F0;transform:translateY(-1px)}
+.obtn.sel{background:#E8F4FF;border-color:#5BAADB;box-shadow:0 2px 0 #3A8FBF}
+.oltr{width:22px;height:22px;min-width:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:900;background:rgba(45,30,15,.07);color:#A0917F}
+.obtn.sel .oltr{background:#5BAADB;color:#fff}
+.finp{width:100%;padding:11px 16px;background:#FAF6F2;border:2px solid rgba(45,30,15,.1);border-radius:13px;font-family:var(--font-d);font-size:1.15rem;color:var(--text);text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s}
+.finp:focus{border-color:#5BAADB;background:#F0F8FF}
+.finp::placeholder{font-family:var(--font-b);font-size:.85rem;letter-spacing:0;color:#C4B5A8}
+.hintbar{background:#FFFBF0;border:1.5px solid #FFD97D;border-radius:12px;padding:8px 12px;font-size:.8rem;color:#B8860B;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:8px;animation:slideUp .3s ease}
+.tobar{background:#FFF5F0;border:1.5px solid #FFBBA8;border-radius:12px;padding:8px 12px;font-size:.8rem;color:#C04A20;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:8px;animation:slideUp .3s ease}
+.bsub{width:100%;font-family:var(--font-d);font-size:1.1rem;padding:13px;border:none;border-radius:15px;cursor:pointer;letter-spacing:.3px;transition:transform .1s,box-shadow .1s,background .2s}
+.bsub:disabled{background:#E8DDD6;color:#B8A89C;cursor:not-allowed;box-shadow:0 4px 0 #D4C8BE}
+.bsub:not(:disabled){color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.16)}
+.bsub:not(:disabled):hover{transform:translateY(-2px)}
+.bsub:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.16)!important}
+.tovl{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
+.ttitle{font-family:var(--font-d);font-size:2rem;margin-bottom:4px}
+.tsub{font-size:.88rem;opacity:.65;margin-bottom:4px}
+.tnote{margin-top:9px;font-size:.72rem;opacity:.4;font-weight:700}
+.covl{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:500;pointer-events:none}
+.cburst{font-size:5rem;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+.gameover-ovl{position:fixed;inset:0;background:rgba(255,248,240,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;animation:gameOverIn .5s ease forwards;text-align:center;padding:30px}
+.nn-card{background:var(--card);border-radius:20px;padding:14px 14px 18px;box-shadow:var(--shadow);border:2px solid rgba(45,30,15,.07);margin-bottom:9px}
+.nn-head{font-family:var(--font-d);font-size:1rem;color:var(--text);text-align:center;margin-bottom:3px}
+.nn-sub{font-size:.74rem;color:var(--soft);text-align:center;margin-bottom:10px}
+.nn-status{text-align:center;font-size:.75rem;color:#C4B5A8;margin-top:8px;font-weight:700}
+.complete-screen{background:linear-gradient(160deg,#E8F6FF 0%,#FFF0E8 50%,#F0EEFF 100%)}
+.complete-card{max-width:560px;width:100%;background:var(--card);border-radius:26px;padding:22px;box-shadow:var(--shadow),0 0 0 1px rgba(45,30,15,.06);animation:pop .6s cubic-bezier(.34,1.56,.64,1) forwards;margin-top:54px}
+.trophy{font-size:3.5rem;display:block;margin-bottom:4px;animation:float 2.5s ease-in-out infinite}
+.ctitle{font-family:var(--font-d);font-size:clamp(1.8rem,6vw,2.6rem);margin-bottom:4px;color:var(--text)}
+.csub{font-size:.88rem;color:var(--soft);margin-bottom:10px}
+.rank-badge{font-family:var(--font-d);font-size:1.5rem;background:#FFFBF0;border:2px solid #FFD97D;border-radius:16px;padding:12px 20px;margin:10px 0 14px;display:flex;align-items:center;justify-content:center;gap:10px;animation:rankIn .7s cubic-bezier(.34,1.56,.64,1) forwards}
+.rank-num{color:#B8860B;font-size:2rem}
+.stats-row{display:flex;gap:8px;margin-bottom:12px}
+.sbox{flex:1;background:#FAF6F2;border:1.5px solid rgba(45,30,15,.08);border-radius:14px;padding:10px;text-align:center}
+.sval{font-family:var(--font-d);font-size:1.2rem;margin-bottom:1px;color:var(--text)}
+.skey{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#C4B5A8}
+.lb-section{margin-top:2px}
+.lb-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.lb-htitle{font-family:var(--font-d);font-size:1.1rem;color:var(--text)}
+.lb-btn{background:#FAF6F2;border:1.5px solid rgba(45,30,15,.1);color:var(--soft);border-radius:9px;padding:5px 10px;cursor:pointer;font-size:.7rem;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:4px}
+.lb-btn:hover{background:#F0F8FF;color:#3A8FBF}
+.lb-btn.spinning svg{animation:spin .7s linear infinite}
+.lb-row{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:12px;margin-bottom:4px;border:1.5px solid transparent;animation:rowIn .3s ease forwards;opacity:0}
+.lb-row.me{background:#FFF8E8;border-color:#FFD97D;animation:glow 2s ease infinite,rowIn .3s ease forwards}
+.lb-row.top1{background:#FFF8E8;border-color:rgba(251,191,36,.28)}
+.lb-row.top2{background:#F8F8F8;border-color:rgba(180,180,180,.18)}
+.lb-row.top3{background:#FFF5F0;border-color:rgba(232,130,80,.18)}
+.lb-row.other{background:#FAF6F2;border-color:rgba(45,30,15,.06)}
+.lb-rank{font-family:var(--font-d);font-size:1.1rem;min-width:28px;text-align:center}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-weight:800;font-size:.83rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-emp{font-size:.62rem;color:#C4B5A8;margin-top:1px}
+.lb-time{font-family:var(--font-d);font-size:.88rem;white-space:nowrap}
+.lb-lives{font-size:.72rem}
+.me-tag{font-size:.54rem;font-weight:800;background:#FFD97D;color:#7A5C00;border-radius:4px;padding:1px 4px;margin-left:4px;vertical-align:middle}
+.lb-empty{text-align:center;padding:20px;color:#C4B5A8;font-size:.82rem}
+.lb-cfg{background:#FFFBF0;border:1.5px solid #FFD97D;border-radius:12px;padding:12px;margin-bottom:10px;font-size:.77rem;color:var(--soft);line-height:1.7}
+.lb-cfg b{color:#B8860B;display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.btn-restart{font-family:var(--font-d);font-size:.85rem;background:#FAF6F2;border:1.5px solid rgba(45,30,15,.1);color:var(--soft);border-radius:99px;padding:7px 20px;cursor:pointer;transition:all .2s;box-shadow:0 2px 0 rgba(45,30,15,.07);margin-top:12px}
+.btn-restart:hover{background:#F0F8FF;color:#3A8FBF}
+.cfetti{position:fixed;top:-20px;animation:cfetti 4s ease-in forwards;pointer-events:none;z-index:9999;border-radius:3px}
+@media(max-width:480px){.opts{grid-template-columns:1fr}.rules-grid{grid-template-columns:1fr}.gw{padding:9px 9px 18px}.stats-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+const DB_URL=window.FIREBASE_DB_URL,DB_KEY=window.FIREBASE_API_KEY;
+const DB_ON=DB_URL&&!DB_URL.includes("YOUR-PROJECT");
+async function dbPush(d){
+  if(!DB_ON)return null;
+  try{
+    const r=await fetch(DB_URL+"/scores.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});
+    const j=await r.json();
+    console.log("Firebase push:",j);
+    return j;
+  }catch(e){console.error("Firebase push error:",e);return null}
+}
+async function dbRead(){
+  if(!DB_ON)return{};
+  try{
+    const r=await fetch(DB_URL+"/scores.json");
+    const j=await r.json();
+    console.log("Firebase read:",j);
+    return j||{};
+  }catch(e){console.error("Firebase read error:",e);return{}}
+}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+const TIMERS=[30,25,20,16,12];
+const MEDALS=["🥇","🥈","🥉"],OPTS=["A","B","C","D"];
+const TC=["#FF8C5A","#5BAADB","#8B6BD8","#52C788","#E8608C","#FFB347"];
+const fmtMs=ms=>{const s=Math.floor(ms/1000),m=Math.floor(s/60);return m>0?m+"m "+s%60+"s":s+"s"};
+
+/* ── QUESTION POOLS ── */
+const POOLS=[
+  /* Level 1: The Desk */
+  [
+    {type:"mcq",emoji:"🤖",tag:"Multiple Choice",question:"What does AI stand for?",options:["Always Intelligent","Artificial Intelligence","Auto Interface","Advanced Input"],ci:1,hint:"Think: what makes computers seem smart? Starts with Artificial..."},
+    {type:"fill",emoji:"💬",tag:"Fill in the Blank",question:"The last 3 letters of ChatGPT are:",answer:"gpt",hint:"G, P, T — three letters you have definitely heard of!"},
+    {type:"mcq",emoji:"🏢",tag:"Multiple Choice",question:"Which company created ChatGPT?",options:["Google","Apple","OpenAI","Meta"],ci:2,hint:"Open + AI = their name! Think: Open..."},
+    {type:"fill",emoji:"🔤",tag:"Fill in the Blank",question:"AI stands for Artificial what? (one word)",answer:"intelligence",hint:"Smart thinking — the word is Artificial ___"},
+    {type:"mcq",emoji:"📊",tag:"Multiple Choice",question:"What does AI mainly need to learn and improve?",options:["Electricity","Data","Internet","Memory"],ci:1,hint:"Lots of examples and information = this!"},
+    {type:"mcq",emoji:"🔊",tag:"Multiple Choice",question:"Siri and Alexa are examples of AI what?",options:["Robots","Games","Assistants","Cameras"],ci:2,hint:"They help you complete tasks and answer questions!"},
+  ],
+  /* Level 2: Break Room */
+  [
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Rearrange to find a tech term:",tiles:shuffle(["T","O","B","O","R"]),answer:"robot",hint:"Beeps, boops, does your chores for you!"},
+    {type:"mcq",emoji:"📺",tag:"Multiple Choice",question:"Which of these uses AI in everyday life?",options:["A stapler","Netflix recommendations","A whiteboard","A paper notebook"],ci:1,hint:"It suggests your next show based on what you watch!"},
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Rearrange these letters:",tiles:shuffle(["D","U","O","L","C"]),answer:"cloud",hint:"Where your photos and data are stored online!"},
+    {type:"mcq",emoji:"🎵",tag:"Multiple Choice",question:"Spotify suggesting songs you might like uses?",options:["Random picks","AI recommendations","Your contacts","Radio signals"],ci:1,hint:"It learns your taste over time!"},
+    {type:"mcq",emoji:"📱",tag:"Multiple Choice",question:"Face recognition on your phone uses?",options:["Just a camera","Magic","Artificial Intelligence","Bluetooth"],ci:2,hint:"AI learns what your face looks like!"},
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Unscramble this AI buzzword:",tiles:shuffle(["D","A","T","A"]),answer:"data",hint:"What AI needs massive amounts of to learn!"},
+  ],
+  /* Level 4: Meeting Room */
+  [
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Unscramble — what you TYPE to talk to an AI:",tiles:shuffle(["T","P","M","O","R","P"]),answer:"prompt",hint:"You type a ___ to ask ChatGPT a question!"},
+    {type:"mcq",emoji:"🎨",tag:"Multiple Choice",question:"AI that creates brand new text, images or music is called?",options:["Robotic AI","Predictive AI","Generative AI","Reactive AI"],ci:2,hint:"It GENErates new content from scratch!"},
+    {type:"mcq",emoji:"📊",tag:"Multiple Choice",question:"ML is the short form of?",options:["Machine Linking","Memory Loop","Machine Learning","Model Layering"],ci:2,hint:"Machines that learn from data!"},
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Unscramble this AI term:",tiles:shuffle(["L","E","D","O","M"]),answer:"model",hint:"ChatGPT is an AI language ___!"},
+    {type:"mcq",emoji:"🌍",tag:"Multiple Choice",question:"ChatGPT was mainly trained on?",options:["Movies only","Text from the internet","Music databases","Company reports"],ci:1,hint:"Billions of web pages and books!"},
+    {type:"mcq",emoji:"🔁",tag:"Multiple Choice",question:"Automation is most useful for tasks that are?",options:["Creative and unique","Repetitive and routine","Complex and emotional","Unpredictable"],ci:1,hint:"Same boring task done again and again!"},
+  ],
+  /* Level 5: The Exit — HARD */
+  [
+    {type:"mcq",emoji:"🧬",tag:"Multiple Choice",question:"A neural network in AI is inspired by which human organ?",options:["The Heart","The Lungs","The Brain","The Stomach"],ci:2,hint:"The organ you are using RIGHT NOW to answer this!"},
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Unscramble where AI is taking us:",tiles:shuffle(["E","R","U","T","U","F"]),answer:"future",hint:"Not past, not present..."},
+    {type:"mcq",emoji:"👻",tag:"Multiple Choice",question:"When an AI gives very confident but completely wrong answers it is called?",options:["A bug","A crash","A hallucination","An update"],ci:2,hint:"Like seeing something that is not really there!"},
+    {type:"mcq",emoji:"📝",tag:"Multiple Choice",question:"The T in ChatGPT stands for?",options:["Technology","Transformer","Training","Text"],ci:1,hint:"A breakthrough AI architecture invented in 2017!"},
+    {type:"scramble",emoji:"🔀",tag:"Unscramble",question:"Unscramble this AI building block:",tiles:shuffle(["N","E","U","R","O","N"]),answer:"neuron",hint:"Brain cells are called this — so are AI building blocks!"},
+    {type:"mcq",emoji:"⚖️",tag:"Multiple Choice",question:"LLM in AI stands for?",options:["Long Learning Machine","Large Language Model","Linked Logic Module","Layered Learning Method"],ci:1,hint:"Think: very BIG model that understands language!"},
+    {type:"mcq",emoji:"🎯",tag:"Multiple Choice",question:"When AI memorizes training data too well and fails on new real data it is called?",options:["Underfitting","Overfitting","Underpowered","Overloaded"],ci:1,hint:"Too much fitting into just ONE specific dataset!"},
+    {type:"mcq",emoji:"🌱",tag:"Multiple Choice",question:"AI learning from rewards and penalties like training a dog is called?",options:["Supervised learning","Reinforcement learning","Transfer learning","Deep learning"],ci:1,hint:"Reward good actions, penalize bad ones! Just like training a pet!"},
+  ],
+];
+const POOL_IDX=[0,1,-1,2,3];
+
+const NN_POOL=[
+  [{expr:"3 + 4",ans:"7"},{expr:"5 x 3",ans:"15"},{expr:"12 - 8",ans:"4"},{expr:"18 / 2",ans:"9"}],
+  [{expr:"6 + 6",ans:"12"},{expr:"7 x 2",ans:"14"},{expr:"20 - 5",ans:"15"},{expr:"16 / 4",ans:"4"}],
+  [{expr:"9 + 3",ans:"12"},{expr:"4 x 4",ans:"16"},{expr:"15 - 6",ans:"9"},{expr:"21 / 3",ans:"7"}],
+  [{expr:"8 + 7",ans:"15"},{expr:"3 x 6",ans:"18"},{expr:"25 - 9",ans:"16"},{expr:"24 / 4",ans:"6"}],
+];
+
+const RAW_LEVELS=[
+  {id:1,name:"The Desk",icon:"🖥️",bg:"linear-gradient(135deg,#D4EEFF,#EEF8FF)",text:"#1A4A6E",sub:"#5B8DB3",ac:"#5BAADB",acd:"#2E7BAD",deco:"💻",sceneSub:"Your workspace awaits"},
+  {id:2,name:"Break Room",icon:"☕",bg:"linear-gradient(135deg,#FFE0CC,#FFF0E8)",text:"#6E2A0A",sub:"#B36040",ac:"#FF8C5A",acd:"#D4542A",deco:"🧋",sceneSub:"Coffee break? Not yet!"},
+  {id:3,name:"Neural Network",icon:"🧠",type:"neural",bg:"linear-gradient(135deg,#C0EED4,#E6F8EE)",text:"#1A5C38",sub:"#3A8A5C",ac:"#52C788",acd:"#2E8A55",deco:"🔗",sceneSub:"Connect the nodes!"},
+  {id:4,name:"Meeting Room",icon:"📋",bg:"linear-gradient(135deg,#DDD6FF,#EEE8FF)",text:"#36166E",sub:"#6845B8",ac:"#8B6BD8",acd:"#6245B3",deco:"📊",sceneSub:"Lets talk strategy"},
+  {id:5,name:"The Exit",icon:"🚪",bg:"linear-gradient(135deg,#FFCCE0,#FFE8F4)",text:"#6E1038",sub:"#B83468",ac:"#E8608C",acd:"#C03468",deco:"⭐",sceneSub:"Almost free!"},
+];
+
+function buildGameLevels(){
+  return RAW_LEVELS.map((lv,i)=>{
+    if(lv.type==="neural")return lv;
+    const pi=POOL_IDX[i];
+    const pool=POOLS[pi];
+    const chosen=shuffle([...pool]).slice(0,2).map(q=>{
+      const tilesShuffle=q.type==="scramble"?{tiles:shuffle([...q.tiles])}:{};
+      if(q.type!=="mcq")return{...q,...tilesShuffle};
+      const idxs=shuffle([0,1,2,3]);
+      return{...q,options:idxs.map(j=>q.options[j]),ci:idxs.indexOf(q.ci)};
+    });
+    return{...lv,questions:chosen};
+  });
+}
+const LOGO_SRC='data:image/webp;base64,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';
+
+function Confetti(){const cols=["#FFD166","#FF8C5A","#5BAADB","#8B6BD8","#52C788","#E8608C","#FFB3D9"];return(<div aria-hidden="true">{Array.from({length:45},(_,i)=>(<div key={i} className="cfetti" style={{left:Math.random()*100+"vw",background:cols[i%cols.length],animationDelay:Math.random()*2+"s",animationDuration:(2.5+Math.random()*2)+"s",transform:"rotate("+Math.random()*360+"deg)",borderRadius:Math.random()>.5?"50%":"3px",width:(7+Math.random()*7)+"px",height:(5+Math.random()*6)+"px"}}/>))}</div>);}
+
+/* ─── NEURAL NETWORK GAME ─── */
+function NeuralGame({onWin,onLoseLife,ac,acd}){
+  const [pairs] = useState(()=>{
+    const chosen=NN_POOL[Math.floor(Math.random()*NN_POOL.length)];
+    return shuffle([...chosen]);
+  });
+  const [rightOrder] = useState(()=>shuffle([0,1,2,3]));
+  const [selected,setSelected] = useState(null);
+  const [correct,setCorrect] = useState({});
+  const [flash,setFlash] = useState(null);
+  const [wrongLeft,setWrongLeft] = useState(null);
+
+  const W=560,H=310,LX=110,RX=450,MX=280;
+  const NH=54,NG=14;
+  const totalH=4*NH+3*NG;
+  const topOff=(H-totalH)/2;
+  const NY=i=>topOff+i*(NH+NG)+NH/2;
+
+  const makePath=(li,ri)=>{
+    const ly=NY(li),ry=NY(ri);
+    return "M "+LX+" "+ly+" C "+(MX-50)+" "+ly+" "+(MX+50)+" "+ry+" "+RX+" "+ry;
+  };
+
+  const clickLeft=(i)=>{
+    if(correct[i]!==undefined)return;
+    setSelected(s=>s===i?null:i);
+  };
+
+  const clickRight=(pos)=>{
+    if(selected===null)return;
+    const ok=rightOrder[pos]===selected;
+    if(ok){
+      const nc={...correct,[selected]:pos};
+      setCorrect(nc);
+      setFlash({li:selected,ri:pos,ok:true});
+      setSelected(null);
+      setTimeout(()=>setFlash(null),600);
+      if(Object.keys(nc).length===4){setTimeout(()=>onWin(),700);}
+    }else{
+      setWrongLeft(selected);
+      setFlash({li:selected,ri:pos,ok:false});
+      setSelected(null);
+      onLoseLife();
+      setTimeout(()=>{setFlash(null);setWrongLeft(null);},700);
+    }
+  };
+
+  return(
+    <div className="nn-card">
+      <div className="nn-head">🔗 Neural Network Challenge</div>
+      <div className="nn-sub">Tap an expression on the left, then tap its correct answer on the right</div>
+      <svg
+        viewBox={"0 0 "+W+" "+H}
+        style={{width:"100%",height:"auto",display:"block"}}
+        onClick={e=>e.stopPropagation()}
+      >
+        {/* hidden layer dots */}
+        {[H*.25,H*.5,H*.75].map((y,i)=>(
+          <circle key={i} cx={MX} cy={y} r={8} fill="#E8DDD6" opacity={0.65}/>
+        ))}
+        {/* faint mesh lines to hidden layer */}
+        {[0,1,2,3].map(li=>[0,1,2].map(mi=>(
+          <path key={li+"-"+mi}
+            d={"M "+LX+" "+NY(li)+" Q "+MX+" "+((NY(li)+H*(.25+mi*.25))/2)+" "+MX+" "+H*(.25+mi*.25)}
+            stroke="#F2EDE8" strokeWidth={1} fill="none"/>
+        )))}
+        {/* correct connections */}
+        {Object.entries(correct).map(([li2,rpos])=>(
+          <path key={"conn"+li2}
+            d={makePath(parseInt(li2),rpos)}
+            stroke="#52C788" strokeWidth={3} fill="none" strokeLinecap="round"
+            strokeDasharray={400} strokeDashoffset={0}
+            style={{animation:"lineIn .4s ease"}}/>
+        ))}
+        {/* flash line */}
+        {flash&&(
+          <path d={makePath(flash.li,flash.ri)}
+            stroke={flash.ok?"#52C788":"#FF8A80"}
+            strokeWidth={3} fill="none" strokeLinecap="round"/>
+        )}
+        {/* LEFT nodes — clickable rect */}
+        {pairs.map((p,i)=>{
+          const y=NY(i);
+          const isDone=correct[i]!==undefined;
+          const isSel=selected===i;
+          const isWrong=wrongLeft===i;
+          const fill=isDone?"#A8E6CF":isSel?ac:isWrong?"#FFD0D0":"#FAF6F2";
+          const stroke=isDone?"#52C788":isSel?acd:isWrong?"#FF8A80":"#E8DDD6";
+          return(
+            <g key={"L"+i}>
+              <rect
+                x={LX-95} y={y-NH/2} width={190} height={NH} rx={14}
+                fill={fill} stroke={stroke} strokeWidth={isSel?3:2}
+                style={{cursor:isDone?"default":"pointer"}}
+                onClick={()=>clickLeft(i)}
+              />
+              <text x={LX} y={y+7} textAnchor="middle"
+                fontFamily="Cooper Black, Lilita One, serif"
+                fontSize={17} fill={isDone?"#1A5C38":isSel?"white":"#2D1E0F"}
+                style={{pointerEvents:"none",fontWeight:900,userSelect:"none"}}>
+                {p.expr}
+              </text>
+            </g>
+          );
+        })}
+        {/* RIGHT nodes — clickable rect */}
+        {rightOrder.map((pairIdx,pos)=>{
+          const y=NY(pos);
+          const isDone=Object.values(correct).includes(pos);
+          return(
+            <g key={"R"+pos}>
+              <rect
+                x={RX-46} y={y-NH/2} width={92} height={NH} rx={14}
+                fill={isDone?"#A8E6CF":"#FAF6F2"}
+                stroke={isDone?"#52C788":"#E8DDD6"} strokeWidth={2}
+                style={{cursor:isDone?"default":"pointer"}}
+                onClick={()=>clickRight(pos)}
+              />
+              <text x={RX} y={y+8} textAnchor="middle"
+                fontFamily="Cooper Black, Lilita One, serif"
+                fontSize={20} fill={isDone?"#1A5C38":"#2D1E0F"}
+                style={{pointerEvents:"none",fontWeight:900,userSelect:"none"}}>
+                {pairs[pairIdx].ans}
+              </text>
+            </g>
+          );
+        })}
+        {/* selected dot indicator */}
+        {selected!==null&&(
+          <circle cx={LX+97} cy={NY(selected)} r={6} fill={ac} opacity={0.9}
+            style={{pointerEvents:"none"}}/>
+        )}
+      </svg>
+      <div className="nn-status">
+        {Object.keys(correct).length}/4 connected
+        {selected!==null?" — now tap an answer on the right":"  — tap an expression to begin"}
+      </div>
+    </div>
+  );
+}
+
+/* ─── LEADERBOARD ─── */
+function Leaderboard({myName,myEmpId,myTime}){
+  const [rows,setRows]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [myRank,setMyRank]=useState(null);
+  const [err,setErr]=useState(null);
+
+  const load=useCallback(async()=>{
+    setLoading(true);setErr(null);
+    const raw=await dbRead();
+    if(raw&&typeof raw==="object"){
+      const arr=Object.values(raw).sort((a,b)=>a.timeTaken-b.timeTaken);
+      setRows(arr);
+      const idx=arr.findIndex(r=>r.name===myName&&r.empId===myEmpId&&Math.abs(r.timeTaken-myTime)<10000);
+      if(idx>=0)setMyRank(idx+1);
+    }else{setErr("Could not load scores. Check Firebase config.")}
+    setLoading(false);
+  },[myName,myEmpId,myTime]);
+
+  useEffect(()=>{const t=setTimeout(load,2000);const id=setInterval(load,15000);return()=>{clearTimeout(t);clearInterval(id)}},[]);
+
+  if(!DB_ON)return(
+    <div className="lb-cfg">
+      <b>Enable Live Leaderboard</b>
+      Open this HTML file in Notepad, find lines 7-8 at the very top, and replace YOUR-PROJECT and YOUR_API_KEY with your Firebase values. Save and re-upload to GitHub.
+    </div>
+  );
+  return(
+    <div className="lb-section">
+      <div className="lb-hdr">
+        <div className="lb-htitle">🏆 Leaderboard</div>
+        <button className={"lb-btn"+(loading?" spinning":"")} onClick={load}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          {loading?"Loading...":"Refresh"}
+        </button>
+      </div>
+      {myRank&&(
+        <div className="rank-badge">
+          You placed <span className="rank-num">#{myRank}</span>
+          {myRank===1?"🥇":myRank===2?"🥈":myRank===3?"🥉":"🎉"}
+        </div>
+      )}
+      {err&&<div className="lb-empty" style={{color:"#E85757"}}>{err}</div>}
+      {!err&&(!rows||rows.length===0)?(
+        <div className="lb-empty">{loading?"Loading scores...":"No scores yet — you could be first!"}</div>
+      ):rows&&rows.slice(0,12).map((r,i)=>{
+        const isMe=r.name===myName&&r.empId===myEmpId&&Math.abs(r.timeTaken-myTime)<10000;
+        const cls=isMe?"me":i===0?"top1":i===1?"top2":i===2?"top3":"other";
+        return(
+          <div key={i} className={"lb-row "+cls} style={{animationDelay:i*.05+"s"}}>
+            <div className="lb-rank">{i<3?MEDALS[i]:i+1}</div>
+            <div className="lb-info">
+              <div className="lb-name">{r.name}{isMe&&<span className="me-tag">YOU</span>}</div>
+              <div className="lb-emp">{r.empId}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div className="lb-time" style={{color:i===0?"#B8860B":i===1?"#888":i===2?"#C04A20":"#A0917F"}}>
+                ⏱️ {fmtMs(r.timeTaken)}
+              </div>
+              <div className="lb-lives">{"❤️".repeat(r.livesLeft)}{"🖤".repeat(3-r.livesLeft)}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Banner({sub}){
+  return(
+    <div className="top-banner">
+      <img src={LOGO_SRC} alt="Recykal" className="recykal-logo"/>
+      <span className="banner-tag">{sub||"Tech Day 2025"}</span>
+    </div>
+  );
+}
+
+function LoginScreen({onLogin}){
+  const [name,setName]=useState("");const [email,setEmail]=useState("");const [empId,setEmpId]=useState("");
+  const ok=name.trim().length>1&&email.includes("@")&&empId.trim().length>0;
+  const go=()=>ok&&onLogin(name.trim(),email.trim(),empId.trim());
+  return(
+    <div className="screen light-screen">
+      <div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div>
+      <Banner/>
+      <div className="login-card">
+        <div style={{fontSize:"4rem",marginBottom:8,animation:"float 3s ease-in-out infinite"}}>🤖</div>
+        <h1 className="gtitle"><span className="tai">AI </span>Quest</h1>
+        <p className="lsub">Escape the office. Prove you know AI! 🏃</p>
+        <div className="fg"><label className="fl">Full Name</label><input className="fi" type="text" placeholder="e.g. Priya Sharma" value={name} onChange={e=>setName(e.target.value)}/></div>
+        <div className="fg"><label className="fl">Work Email</label><input className="fi" type="email" placeholder="you@recykal.com" value={email} onChange={e=>setEmail(e.target.value)}/></div>
+        <div className="fg"><label className="fl">Employee ID</label><input className="fi" type="text" placeholder="e.g. RCY-1042" value={empId} onChange={e=>setEmpId(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/></div>
+        <button className="btn btn-blue" disabled={!ok} onClick={go}>Lets Go!</button>
+      </div>
+    </div>
+  );
+}
+
+function StartScreen({player,onStart}){
+  return(
+    <div className="screen light-screen">
+      <div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div>
+      <Banner/>
+      <div className="start-card">
+        <div style={{fontSize:"4rem",marginBottom:8,animation:"float 3s ease-in-out infinite"}}>🤖</div>
+        <h1 className="gtitle"><span className="tai">AI </span>Quest</h1>
+        <p className="lsub">Escape the office. Prove you know AI! 🏃</p>
+        <div className="wpill">Hey <span>{player.name}</span>! Ready to show what you know? 👋</div>
+        <div className="rules-grid">
+          <div className="rc"><span className="re">🏢</span><div className="rt"><strong>5 Levels</strong>Desk, Break Room, Neural Net, Meeting, Exit</div></div>
+          <div className="rc"><span className="re">⏱️</span><div className="rt"><strong>Fast Timers!</strong>30s → 25s → 20s → 16s → 12s each level!</div></div>
+          <div className="rc"><span className="re">❤️</span><div className="rt"><strong>3 Lives Only</strong>Lose all 3 and the game ends — no restart!</div></div>
+          <div className="rc"><span className="re">🏆</span><div className="rt"><strong>Live Leaderboard</strong>See your rank the second you finish!</div></div>
+        </div>
+        <button className="btn btn-blue" onClick={onStart}>START PLAYING →</button>
+      </div>
+    </div>
+  );
+}
+
+function CompleteScreen({player,timeTaken,livesLeft,onRestart}){
+  return(
+    <div className="screen complete-screen">
+      <Confetti/>
+      <div className="bg-blobs"><div className="bg-blob bb1"/><div className="bg-blob bb2"/><div className="bg-blob bb3"/></div>
+      <Banner/>
+      <div className="complete-card">
+        <span className="trophy">🏆</span>
+        <h2 className="ctitle">You Escaped!</h2>
+        <p className="csub">All 5 levels crushed! Great work 🎉</p>
+        <div className="stats-row">
+          <div className="sbox"><div className="sval">⏱️ {fmtMs(timeTaken)}</div><div className="skey">Your Time</div></div>
+          <div className="sbox"><div className="sval">{"❤️".repeat(livesLeft)}{"🖤".repeat(3-livesLeft)}</div><div className="skey">Lives Left</div></div>
+        </div>
+        <Leaderboard myName={player.name} myEmpId={player.empId} myTime={timeTaken}/>
+        <button className="btn-restart" onClick={onRestart}>↩ Play again</button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── GAME SCREEN ─── */
+function GameScreen({player,onComplete,onGameOver}){
+  const [LEVELS]=useState(()=>buildGameLevels());
+  const [li,setLi]=useState(0);const [qi,setQi]=useState(0);
+  const [lives,setLives]=useState(3);const [hint,setHint]=useState(false);
+  const [toMsg,setToMsg]=useState(false);const [sel,setSel]=useState(null);
+  const [inp,setInp]=useState("");const [cs,setCs]=useState(null);
+  const [trans,setTrans]=useState(null);const [burst,setBurst]=useState(false);
+  const [hb,setHb]=useState(-1);const [tkey,setTkey]=useState(0);
+  const [tLeft,setTLeft]=useState(TIMERS[0]);const [tRun,setTRun]=useState(true);
+  const [dead,setDead]=useState(false);
+  const t0=useRef(Date.now());const iRef=useRef(null);
+
+  const lv=LEVELS[li];const isNeural=lv.type==="neural";
+  const q=isNeural?null:lv.questions[qi];const ts=TIMERS[li];
+  const canSub=!isNeural&&(q.type==="mcq"?sel!==null:inp.trim().length>0);
+
+  const stopT=()=>{clearInterval(iRef.current);setTRun(false)};
+  const startT=(s)=>{clearInterval(iRef.current);setTLeft(s);setTRun(true)};
+
+  const triggerDead=useCallback(()=>{stopT();setTimeout(()=>setDead(true),500);},[]);
+
+  const loseOneLife=useCallback((currentLives)=>{
+    const nl=Math.max(0,currentLives-1);
+    setHb(nl);
+    if(nl===0){triggerDead();return nl;}
+    return nl;
+  },[triggerDead]);
+
+  const handleTO=useCallback(()=>{
+    setCs("timeout");setToMsg(true);setHint(true);
+    setLives(l=>{
+      const nl=loseOneLife(l);
+      if(nl>0){
+        setTimeout(()=>{setHb(-1);setCs(null);setSel(null);setInp("");setToMsg(false);setTkey(k=>k+1);startT(TIMERS[li])},1200);
+      }
+      return nl;
+    });
+  },[li,loseOneLife]);
+
+  useEffect(()=>{
+    if(!tRun||trans||cs||isNeural||dead)return;
+    iRef.current=setInterval(()=>{setTLeft(t=>{if(t<=1){clearInterval(iRef.current);handleTO();return 0}return t-1})},1000);
+    return()=>clearInterval(iRef.current);
+  },[tRun,trans,cs,tkey,isNeural,dead]);
+
+  const advanceLevel=useCallback(()=>{
+    if(li===LEVELS.length-1){onComplete(Date.now()-t0.current,lives);}
+    else{
+      const nl=li+1;
+      setTrans({msg:"Level "+(li+1)+" Complete!",sub:"Moving to "+LEVELS[nl].name+"...",icon:LEVELS[nl].icon,note:"Timer: "+TIMERS[nl]+"s next level",bg:LEVELS[nl].bg,text:LEVELS[nl].text});
+      setTimeout(()=>{setTrans(null);setLi(nl);setQi(0);setHint(false);setTkey(k=>k+1);startT(TIMERS[nl])},950);
+    }
+  },[li,lives,LEVELS]);
+
+  const advance=useCallback(()=>{
+    if(isNeural||qi===1){advanceLevel();}else{setQi(1);setTkey(k=>k+1);startT(ts);}
+  },[isNeural,qi,ts,advanceLevel]);
+
+  const check=()=>{
+    if(cs)return;
+    const ok=q.type==="mcq"?sel===q.ci:inp.trim().toLowerCase()===q.answer.toLowerCase();
+    if(ok){
+      stopT();setCs("correct");setBurst(true);
+      setTimeout(()=>setBurst(false),400);
+      setTimeout(()=>{setCs(null);setHint(false);setToMsg(false);setSel(null);setInp("");advance()},450);
+    }else{
+      stopT();setCs("wrong");
+      setLives(l=>{
+        const nl=loseOneLife(l);
+        setHint(true);
+        if(nl>0){setTimeout(()=>{setHb(-1);setCs(null);setSel(null);setInp("");setTkey(k=>k+1);startT(ts)},900);}
+        return nl;
+      });
+    }
+  };
+
+  const pct=(tLeft/ts)*100,tst=tLeft>ts*.5?"ok":tLeft>ts*.2?"warn":"danger",tcol=tLeft>ts*.5?lv.ac:tLeft>ts*.2?"#E8A23C":"#E85757";
+
+  return(
+    <div className="screen game-screen" style={{background:lv.bg,paddingTop:56}}>
+      <Banner sub={lv.name}/>
+
+      {/* GAME OVER */}
+      {dead&&(
+        <div className="gameover-ovl">
+          <div style={{fontSize:"5rem",marginBottom:12}}>💔</div>
+          <div style={{fontFamily:"var(--font-d)",fontSize:"2.2rem",color:"#6E2A0A",marginBottom:6}}>Game Over!</div>
+          <div style={{fontSize:".95rem",color:"#B36040",marginBottom:8}}>You used all 3 lives.</div>
+          <div style={{fontSize:".85rem",color:"#B36040",marginBottom:22}}>Time: {fmtMs(Date.now()-t0.current)}</div>
+          <button className="btn btn-red" style={{width:"auto",padding:"13px 44px"}} onClick={onGameOver}>Try Again 🔄</button>
+        </div>
+      )}
+
+      {/* LEVEL TRANSITION */}
+      {trans&&!dead&&(
+        <div className="tovl" style={{background:trans.bg}}>
+          <div style={{fontSize:"5rem",marginBottom:12,animation:"float 1s ease-in-out infinite"}}>{trans.icon}</div>
+          <div className="ttitle" style={{color:trans.text}}>{trans.msg}</div>
+          <div className="tsub" style={{color:trans.text}}>{trans.sub}</div>
+          <div className="tnote" style={{color:trans.text}}>{trans.note}</div>
+        </div>
+      )}
+
+      {burst&&<div className="covl"><div className="cburst">✅</div></div>}
+
+      <div className="gw" key={li+"-"+qi}>
+        <div className="ghdr">
+          <div className="lbadge" style={{borderColor:lv.ac,color:lv.text}}>Level {li+1}/5 — {lv.name}</div>
+          <div className="lvs">{[0,1,2].map(i=><span key={i} className={"hrt"+(i>=lives?" lost":"")+(hb===i?" beat":"")}>❤️</span>)}</div>
+        </div>
+        {!isNeural&&(
+          <div className="trow">
+            <div className={"tnum "+tst}>{tLeft}s</div>
+            <div className="tbw"><div className="tbf" style={{width:pct+"%",background:tcol}}/></div>
+            <div className="tlbl">time left</div>
+          </div>
+        )}
+        <div className="ptrow">
+          <div className="pbw"><div className="pbf" style={{width:((li*2+qi)/10*100)+"%",background:lv.ac}}/></div>
+          <span className="plbl">{li*2+qi}/10</span>
+        </div>
+        <div className="lscene" style={{background:lv.bg,boxShadow:"0 4px 20px "+lv.ac+"28"}}>
+          <div className="sdeco">{lv.deco}</div>
+          <div>
+            <div className="stitle" style={{color:lv.text}}>{lv.name}</div>
+            <div className="ssub" style={{color:lv.sub}}>{lv.sceneSub}</div>
+          </div>
+          <div className="sicon">{lv.icon}</div>
+        </div>
+        {!isNeural&&<div className="qdots">{lv.questions.map((_,i)=><div key={i} className={"qdot"+(i<qi?" done":i===qi?" active":"")}/>)}</div>}
+        {isNeural?(
+          <NeuralGame
+            ac={lv.ac} acd={lv.acd}
+            onWin={()=>{stopT();advanceLevel();}}
+            onLoseLife={()=>{setLives(l=>{const nl=loseOneLife(l);return nl;});}}
+          />
+        ):(
+          <div className={"qcard"+(cs?" "+cs:"")} style={{borderColor:cs?"":lv.ac+"18"}}>
+            <span className="qtag">{q.tag}</span>
+            <span className="qem">{q.emoji}</span>
+            <div className="qtxt">{q.question}</div>
+            {q.type==="scramble"&&<div className="stiles">{q.tiles.map((l,i)=><div key={i} className="stile" style={{background:TC[i%TC.length],animationDelay:i*.05+"s"}}>{l}</div>)}</div>}
+            {q.type==="mcq"&&<div className="opts">{q.options.map((o,i)=>(
+              <button key={i} className={"obtn"+(sel===i?" sel":"")}
+                style={sel===i?{borderColor:lv.ac,background:lv.ac+"12",boxShadow:"0 2px 0 "+lv.acd}:{}}
+                onClick={()=>setSel(i)}>
+                <div className="oltr" style={sel===i?{background:lv.ac,color:"#fff"}:{}}>{OPTS[i]}</div>{o}
+              </button>
+            ))}</div>}
+            {(q.type==="fill"||q.type==="scramble")&&<input className="finp" type="text" placeholder="Type your answer..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&canSub&&check()} style={inp?{borderColor:lv.ac}:{}} autoComplete="off" spellCheck={false}/>}
+          </div>
+        )}
+        {toMsg&&<div className="tobar"><span>⏰</span><span><strong>Times up!</strong> You lose a heart. Here is a hint...</span></div>}
+        {hint&&!isNeural&&<div className="hintbar"><span>💡</span><span><strong>Hint:</strong> {q.hint}</span></div>}
+        {!isNeural&&<button className="bsub" disabled={!canSub||!!cs} onClick={check}
+          style={canSub&&!cs?{background:lv.ac,boxShadow:"0 5px 0 "+lv.acd}:{}}>
+          {cs==="correct"?"✅ Correct!":cs==="wrong"?"❌ Try again!":cs==="timeout"?"⏰ Times up!":"Submit Answer →"}
+        </button>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── APP ─── */
+function App(){
+  const [screen,setScreen]=useState("login");
+  const [player,setPlayer]=useState(null);
+  const [result,setResult]=useState(null);
+
+  const handleComplete=async(timeTaken,livesLeft)=>{
+    setResult({timeTaken,livesLeft});
+    setScreen("complete");
+    await dbPush({name:player.name,email:player.email,empId:player.empId,timeTaken,livesLeft,ts:Date.now()});
+  };
+
+  return(
+    screen==="login"?<LoginScreen onLogin={(n,e,id)=>{setPlayer({name:n,email:e,empId:id});setScreen("start")}}/>:
+    screen==="start"?<StartScreen player={player} onStart={()=>setScreen("game")}/>:
+    screen==="game"?<GameScreen player={player} onComplete={handleComplete} onGameOver={()=>setScreen("login")}/>:
+    <CompleteScreen player={player} timeTaken={result.timeTaken} livesLeft={result.livesLeft} onRestart={()=>{setResult(null);setScreen("login")}}/>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
